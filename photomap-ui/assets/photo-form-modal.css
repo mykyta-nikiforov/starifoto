@@ -1,0 +1,28 @@
+.selected-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+
+    border: 2px dashed #D1D5DB;
+    border-radius: 1.5rem;
+    position: relative;
+
+    .selected-image {
+        width: 100%;
+        border-radius: 1rem;
+        max-height: 275px;
+        object-fit: contain;
+    }
+
+    .clear-image-button {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        cursor: pointer;
+        width: 2rem;
+        height: 2rem;
+    }
+}

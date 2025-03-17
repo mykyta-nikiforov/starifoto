@@ -1,0 +1,58 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.1.4'
+	id 'io.spring.dependency-management' version '1.1.3'
+	id('com.google.osdetector') version '1.7.0'
+}
+
+group = 'ua.in.photomap'
+version = '1.0.0-beta'
+
+java {
+	sourceCompatibility = '17'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	mavenLocal()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.kafka:spring-kafka:3.0.11'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+	implementation 'io.projectreactor.kafka:reactor-kafka:1.3.21'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
+
+	implementation 'ua.in.photomap:photomap-common-dto:1.0.0'
+	implementation 'ua.in.photomap:photomap-common-swagger:1.0.0'
+
+	// for mongo migrations
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation "io.mongock:mongock:5.4.0"
+	implementation "io.mongock:mongock-springboot-v3:5.4.0"
+	implementation "io.mongock:mongodb-springdata-v4-driver:5.4.0"
+
+	// Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// needed for macos
+	if (osdetector.arch.equals("aarch_64")) {
+		runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.1.107.Final:osx-aarch_64'
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

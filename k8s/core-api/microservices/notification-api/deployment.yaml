@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-api
+  template:
+    metadata:
+      labels:
+        app: notification-api
+    spec:
+      serviceAccountName: k8s-service-account
+      containers:
+        - name: notification-api
+          image: ${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/notification-api:latest
+          env:
+            - name: REDIS_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: REDIS_HOSTNAME
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: REDIS_PORT
+            - name: NO_REPLY_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: email-secret
+                  key: smtp-from
+            - name: NO_REPLY_EMAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: email-secret
+                  key: smtp-password
+            - name: PHOTOMAP_CLIENT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: CLIENT_ADDRESS
+            - name: OPENAPI_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: CLIENT_ADDRESS
+
+          ports:
+            - containerPort: 8084
+          readinessProbe:
+            httpGet:
+              path: /health/readiness
+              port: 8084
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 1
+          livenessProbe:
+            httpGet:
+              path: /health/liveness
+              port: 8084
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 200m
+              memory: 768Mi

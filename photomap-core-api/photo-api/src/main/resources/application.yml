@@ -1,0 +1,67 @@
+server:
+  port: 8083
+
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/photomap}
+    username: ${DATABASE_USERNAME:admin}
+    password: ${DATABASE_PASSWORD:Password123}
+  jpa:
+    properties:
+      hibernate:
+        default_schema: photo_service
+    open-in-view: false
+  flyway:
+    enabled: true
+    default-schema: photo_service
+#    baseline-on-migrate: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+  kafka:
+    bootstrap-servers: ${KAFKA_HOSTNAME:localhost}:9092
+photomap:
+  security:
+    secret: ${JWT_SECRET:photomap-secret}
+  file:
+    max-size-in-mb: 5
+  notification-api:
+    base-url: http://${NOTIFICATION_API_HOSTNAME:localhost}:8084/api/notification
+  user-api:
+    base-url: http://${USER_API_HOSTNAME:localhost}:8082/api
+  supercluster-api:
+    base-url: http://${SUPERCLUSTER_API_HOSTNAME:localhost}:3000
+  geojson-generator:
+    base-url: http://${GEOJSON_GENERATOR_HOSTNAME:localhost}:8088/api
+
+logging:
+  level:
+    ua.in.photomap: DEBUG
+
+google:
+  cloud:
+    storage:
+      bucketName: photomap-ukraine
+
+
+springdoc:
+  api-docs:
+    path: /doc/photo-api/v3/api-docs
+  swagger-ui:
+    path: /doc/photo-api/swagger-ui.html
+openapi:
+  service:
+    title: photo-api
+    version: 1.0.0
+    url: ${OPENAPI_SERVICE_URL:http://localhost:8083}
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,liveness,readiness,info
+  endpoint:
+    health:
+      probes:
+        enabled: true

@@ -1,0 +1,67 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/photomap}
+    username: ${DATABASE_USERNAME:admin}
+    password: ${DATABASE_PASSWORD:Password123}
+
+  data:
+    redis:
+      host: ${REDIS_HOSTNAME:localhost}
+      port: 6379
+
+  jpa:
+    properties:
+      hibernate:
+        default_schema: user_service
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    default-schema: user_service
+#    baseline-on-migrate: true
+
+photomap:
+  notification-api:
+    base-url: http://${NOTIFICATION_API_HOSTNAME:localhost}:8084/api/notification
+  auth-action-token:
+    expiration-time-in-minutes: 720
+
+  google:
+    auth:
+      client-id: ${GOOGLE_OAUTH_CLIENT_ID:default-client-id}
+
+  security:
+    secret: ${JWT_SECRET:photomap-secret}
+    jwt:
+      # 1 day
+      expirationDateInMs: 86400000
+      # 7 days
+      refreshExpirationDateInMs: 604800000
+
+logging:
+  level:
+    ua.in.photomap: DEBUG
+
+springdoc:
+  api-docs:
+    path: /doc/user-api/v3/api-docs
+  swagger-ui:
+    path: /doc/user-api/swagger-ui.html
+openapi:
+  service:
+    title: user-api
+    version: 1.0.0
+    url: ${OPENAPI_SERVICE_URL:http://localhost:8089}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,liveness,readiness,info
+  endpoint:
+    health:
+      probes:
+        enabled: true

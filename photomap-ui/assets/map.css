@@ -1,0 +1,62 @@
+#map-container {
+    /*!* Firefox *!*/
+    /*height: -moz-calc(100vh - 70px);*/
+    /*!* WebKit *!*/
+    /*height: -webkit-calc(100vh - 70px);*/
+    /* Standard */
+    height: calc(100vh - 70px);
+    height: calc(100dvh - 70px);
+    width: 100vw;
+}
+
+.marker-icon {
+    width: 40px;
+    height: 40px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: 1px solid #C3C7DD;
+    box-shadow: 0 0 0 1px #000, 0 2px 4px 0px #222;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+
+.cluster-foot {
+    width: 100%;
+    line-height: 11px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+
+.cluster-count {
+    color: #f2f2f2;
+    font-size: 13px;
+    line-height: 15px;
+    font-weight: bolder;
+    text-shadow: 1px 1px 0 black, -1px 1px 0 black, 1px -1px 0 black, -1px -1px 0 black;
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    align-self: center;
+}
+
+/* Class to show/hide the point count */
+.cluster-foot.visible {
+    display: flex;
+}
+
+/* Hide the point count initially */
+.cluster-foot {
+    display: none;
+}
+
+/* Styling on hover */
+.marker-icon:hover .cluster-foot {
+    @media (min-width: 500px) {
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 50%;
+    }
+}

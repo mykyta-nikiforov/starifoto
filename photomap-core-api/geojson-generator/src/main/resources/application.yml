@@ -1,0 +1,29 @@
+server:
+  port: 8088
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_HOSTNAME:localhost}:9092
+  data:
+    mongodb:
+      authentication-database: photomap
+      host: ${MONGO_HOSTNAME:localhost}
+      port: 27017
+      database: photomap
+      username: ${MONGO_USERNAME:photomapUser}
+      password: ${MONGO_PASSWORD:password}
+photomap:
+  photo-api:
+    base-url: http://${PHOTO_API_HOSTNAME:localhost}:8083/api/photo
+mongock:
+  migration-scan-package: ua.in.photomap.geojsongenerator.changelog
+
+springdoc:
+  api-docs:
+    path: /doc/geojson-generator/v3/api-docs
+  swagger-ui:
+    path: /doc/geojson-generator/swagger-ui.html
+openapi:
+  service:
+    title: geojson-generator
+    version: 1.0.0
+    url: ${OPENAPI_SERVICE_URL:http://localhost:8088}

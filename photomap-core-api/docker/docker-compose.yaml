@@ -1,0 +1,292 @@
+version: '3.1'
+
+services:
+  postgresdb:
+    image: postgres:15
+    container_name: photomap_psql
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB_NAME}
+    ports:
+      - "5433:5432"
+    volumes:
+      - photomap_data:/var/lib/postgresql/data
+      - ./postgres-db-init-script/:/docker-entrypoint-initdb.d/
+    networks:
+      - photomap
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - photomap
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+
+  mongo-setup:
+    image: mongo:latest
+    restart: on-failure
+    networks:
+      - mongo-network
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    environment:
+      MONGO_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_PHOTOMAP_DB_NAME: ${MONGO_PHOTOMAP_DB_NAME}
+      MONGO_PHOTOMAP_USERNAME: ${MONGO_PHOTOMAP_USERNAME}
+      MONGO_PHOTOMAP_PASSWORD: ${MONGO_PHOTOMAP_PASSWORD}
+    volumes:
+      - ./mongo/setup-scripts:/scripts
+    entrypoint: [ "/scripts/rs-init.sh" ]
+
+  mongo1:
+    container_name: mongo1
+    image: "mongo:latest"
+    ports:
+      - "27017:27017"
+    expose:
+      - 27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    networks:
+      - mongo-network
+      - photomap
+    depends_on:
+      - mongo2
+      - mongo3
+    restart: always
+    command: ["--bind_ip_all", "--replSet", "dbrs", "--keyFile", "/opt/keyfile/mongodb-keyfile" ]
+    healthcheck:
+      test: [ "CMD-SHELL", "bash /scripts/db-healthcheck.sh" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - mongo_data1:/data/db
+      - ./mongo/mongodb-keyfile:/opt/keyfile/mongodb-keyfile:ro
+      - ./mongo/init-user.sh:/docker-entrypoint-initdb.d/init-user.sh:ro
+      - ./mongo/db-healthcheck.sh:/scripts/db-healthcheck.sh:ro
+
+  mongo2:
+    container_name: mongo2
+    image: "mongo:latest"
+    networks:
+      - mongo-network
+    ports:
+      - 27018:27017
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs", "--keyFile", "/opt/keyfile/mongodb-keyfile" ]
+    volumes:
+      - mongo_data2:/data/db
+      - ./mongo/mongodb-keyfile:/opt/keyfile/mongodb-keyfile:ro
+
+  mongo3:
+    container_name: mongo3
+    image: "mongo:latest"
+    networks:
+      - mongo-network
+    ports:
+      - 27019:27017
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs", "--keyFile", "/opt/keyfile/mongodb-keyfile" ]
+    volumes:
+      - mongo_data3:/data/db
+      - ./mongo/mongodb-keyfile:/opt/keyfile/mongodb-keyfile:ro
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
+    networks:
+      - photomap
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper
+    healthcheck:
+      test: [ "CMD", "zookeeper-shell", "localhost:2181", "ls", "/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    environment:
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER_INTERNAL:PLAINTEXT,DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: DOCKER_INTERNAL://:29092,DOCKER_EXTERNAL://:9092
+      KAFKA_ADVERTISED_LISTENERS: DOCKER_INTERNAL://kafka:29092,DOCKER_EXTERNAL://${KAFKA_DOCKER_EXTERNAL_HOSTNAME}:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    networks:
+      - photomap
+    healthcheck:
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 7
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    restart: always
+
+  api-gateway:
+    image: api-gateway:latest
+    ports:
+      - "8081:8081"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_USERNAME: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOSTNAME: redis
+      USER_API_HOSTNAME: user-api
+      PHOTO_API_HOSTNAME: photo-api
+      GEOJSON_GENERATOR_HOSTNAME: geojson-generator
+      NOTIFICATION_API_HOSTNAME: notification-api
+      PHOTOMAP_CLIENT_URL: ${PHOTOMAP_CLIENT_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      SWAGGER_PASSWORD: ${SWAGGER_PASSWORD}
+    networks:
+      - photomap
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mongo1:
+        condition: service_healthy
+    restart: always
+
+  geojson-generator:
+    image: geojson-generator:latest
+    environment:
+      KAFKA_HOSTNAME: kafka
+      MONGO_HOSTNAME: mongo1
+      MONGO_USERNAME: ${MONGO_PHOTOMAP_USERNAME}
+      MONGO_PASSWORD: ${MONGO_PHOTOMAP_PASSWORD}
+      PHOTO_API_HOSTNAME: photo-api
+    networks:
+      - photomap
+    depends_on:
+      mongo1:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    restart: always
+
+  photo-api:
+    image: photo-api:latest
+    volumes:
+      - ../google/credentials.json:/app/google-credentials.json
+    environment:
+      SPRING_PROFILES_ACTIVE: ${PHOTO_API_SPRING_PROFILES_ACTIVE}
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_USERNAME: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      KAFKA_HOSTNAME: kafka
+      NOTIFICATION_API_HOSTNAME: notification-api
+      USER_API_HOSTNAME: user-api
+      SUPERCLUSTER_API_HOSTNAME: supercluster-api
+      GEOJSON_GENERATOR_HOSTNAME: geojson-generator
+      GOOGLE_APPLICATION_CREDENTIALS: /app/google-credentials.json
+      JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - photomap
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgresdb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+
+  user-api:
+    image: user-api:latest
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_USERNAME: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOSTNAME: redis
+      NOTIFICATION_API_HOSTNAME: notification-api
+      JWT_SECRET: ${JWT_SECRET}
+      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID}
+    networks:
+      - photomap
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+
+  notification-api:
+    image: notification-api:latest
+    ports:
+      - "8084:8084"
+    environment:
+      REDIS_HOSTNAME: redis
+      NO_REPLY_EMAIL: ${NOTIFICATION_API_NO_REPLY_EMAIL}
+      NO_REPLY_EMAIL_PASSWORD: ${NOTIFICATION_API_NO_REPLY_EMAIL_PASSWORD}
+      PHOTOMAP_CLIENT_URL: ${PHOTOMAP_CLIENT_URL}
+      JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - photomap
+    volumes:
+      - kafka_data:/var/lib/kafka
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: always
+
+#  kafdrop:
+#    image: obsidiandynamics/kafdrop
+#    container_name: kafdrop
+#    networks:
+#      - photomap
+#    ports:
+#      - "9000:9000"
+#    environment:
+#      KAFKA_BROKERCONNECT: "kafka:29092"
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
+    
+volumes:
+  photomap_data:
+  mongo_data1:
+  mongo_data2:
+  mongo_data3:
+  redis_data:
+  zookeeper_data:
+  kafka_data:
+
+networks:
+  photomap:
+  mongo-network:
+    driver: bridge

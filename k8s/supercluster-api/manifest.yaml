@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: photomap-supercluster
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: photomap-supercluster
+  template:
+    metadata:
+      labels:
+        app: photomap-supercluster
+    spec:
+      containers:
+        - name: photomap-supercluster
+          image: ${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/photomap-supercluster:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: SUPERCLUSTER_PORT
+            - name: MONGO_AUTH_SOURCE
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: MONGODB_AUTH_SOURCE
+            - name: MONGO_CONNECTION
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: SUPERCLUSTER_MONGODB_CONNECTION_STRING
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: photomapUser
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: photomapPassword
+            - name: CORS_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: CLIENT_ADDRESS
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 400m
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: photomap-supercluster-service
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: http
+  selector:
+    app: photomap-supercluster

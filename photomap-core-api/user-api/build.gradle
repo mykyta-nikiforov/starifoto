@@ -1,0 +1,54 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.1.3'
+	id 'io.spring.dependency-management' version '1.1.3'
+}
+
+group = 'ua.in.photomap'
+version = '1.0.0-beta'
+
+java {
+	sourceCompatibility = '17'
+}
+
+repositories {
+	mavenCentral()
+	mavenLocal()
+}
+
+dependencies {
+	implementation 'ua.in.photomap:photomap-common-rest-toolkit:1.0.0'
+	implementation 'ua.in.photomap:photomap-common-swagger:1.0.0'
+	implementation 'ua.in.photomap:photomap-common-cache:1.0.0'
+	implementation 'ua.in.photomap:photomap-common-dto:1.0.0'
+
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.cloud:spring-cloud-gcp-starter-sql-postgresql:1.2.8.RELEASE'
+	implementation 'org.postgresql:postgresql:42.6.0'
+	implementation 'org.flywaydb:flyway-core:9.22.0'
+
+	implementation 'com.google.api-client:google-api-client:2.1.2'
+	implementation 'com.auth0:java-jwt:4.4.0'
+
+	// Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+	compileOnly 'org.projectlombok:lombok:1.18.28'
+	annotationProcessor 'org.projectlombok:lombok:1.18.28'
+	annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

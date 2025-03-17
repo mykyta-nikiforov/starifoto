@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geojson-generator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geojson-generator
+  template:
+    metadata:
+      labels:
+        app: geojson-generator
+    spec:
+      serviceAccountName: k8s-service-account
+      containers:
+        - name: geojson-generator
+          image: ${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/geojson-generator:latest
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: SPRING_PROFILES
+            - name: KAFKA_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: KAFKA_HOSTNAME
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: photomapUser
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: photomapPassword
+            - name: MONGO_SRV_CONNECTION_STRING
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: MONGODB_CONNECTION_STRING
+            - name: PHOTO_API_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: PHOTO_API_HOSTNAME
+            - name: OPENAPI_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: CLIENT_ADDRESS
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 250m
+              memory: 400Mi

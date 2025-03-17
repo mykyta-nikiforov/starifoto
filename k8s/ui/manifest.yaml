@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: photomap-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: photomap-ui
+  template:
+    metadata:
+      labels:
+        app: photomap-ui
+    spec:
+      containers:
+        - name: photomap-ui
+          image: ${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/photomap-ui:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: NUXT_PUBLIC_GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: frontend-secret
+                  key: google-client-id
+            - name: NUXT_PUBLIC_BASE_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: BASE_API_URL
+            - name: NUXT_PUBLIC_BROWSER_BASE_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: CLIENT_ADDRESS
+            - name: NUXT_PUBLIC_CLUSTER_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: CLIENT_ADDRESS
+            - name: NUXT_PUBLIC_TIMEOUT
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: REQUEST_TIMEOUT
+            - name: NUXT_PUBLIC_WS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: WS_URL
+            - name: NUXT_PUBLIC_NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: NODE_ENV
+            - name: NUXT_PUBLIC_CLIENT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: CLIENT_ADDRESS
+            - name: NUXT_PUBLIC_GOOGLE_MAPS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: frontend-secret
+                  key: google-maps-api-key
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 400m
+              memory: 768Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: photomap-ui-service
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      name: http
+  selector:
+    app: photomap-ui

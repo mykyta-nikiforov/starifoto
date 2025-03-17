@@ -1,0 +1,13 @@
+.header-wrapper {
+    min-height: 70px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    background-color: white;
+}
+
+.view-wrapper {
+    margin-top: 70px;
+}

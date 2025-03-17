@@ -1,0 +1,1 @@
+export const WATERFALL_BREAK_AT = {1350: 3, 1000: 2, 650: 1};

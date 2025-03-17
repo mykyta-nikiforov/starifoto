@@ -1,0 +1,25 @@
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-security:3.2.2'
+	implementation 'com.auth0:java-jwt:4.4.0'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.2.2'
+	implementation 'org.springframework:spring-webmvc:6.0.12'
+
+	implementation 'com.google.guava:guava:33.1.0-jre'
+
+	implementation 'io.swagger.core.v3:swagger-models:2.2.21'
+	implementation 'io.swagger.core.v3:swagger-annotations:2.2.21'
+
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+	compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+	compileOnly 'org.projectlombok:lombok:1.18.28'
+	annotationProcessor 'org.projectlombok:lombok:1.18.28'
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			artifactId = 'photomap-common-rest-toolkit'
+			from components.java
+		}
+	}
+}

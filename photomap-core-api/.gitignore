@@ -1,0 +1,16 @@
+/.idea/
+/docker/.env
+/docker/.env.dev
+/docker/.env.prod
+/docker/mongo/mongodb-keyfile
+/docker/mongo/mongodb-keyfile.dev
+/docker/mongo/mongodb-keyfile.prod
+/google/credentials.json
+/google/credentials.dev.json
+/google/credentials.prod.json
+/docker/postgres-db-init-script/init.sql
+/api-gateway/bin/
+/geojson-generator/bin/
+/notification-api/bin/
+/photo-api/bin/
+/user-api/bin/

@@ -1,0 +1,125 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      serviceAccountName: k8s-service-account
+      containers:
+        - name: api-gateway
+          image: ${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/api-gateway:latest
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DATABASE_URL
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-secret
+                  key: postgres-user
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-secret
+                  key: postgres-password
+            - name: REDIS_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: REDIS_HOSTNAME
+            - name: USER_API_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: USER_API_HOSTNAME
+            - name: PHOTO_API_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: PHOTO_API_HOSTNAME
+            - name: GEOJSON_GENERATOR_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: GEOJSON_GENERATOR_HOSTNAME
+            - name: NOTIFICATION_API_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: NOTIFICATION_API_HOSTNAME
+            - name: PHOTOMAP_CLIENT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: CLIENT_ADDRESS
+            - name: SWAGGER_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: swagger-credential
+                  key: swagger-username
+            - name: SWAGGER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: swagger-credential
+                  key: swagger-password
+
+          ports:
+            - containerPort: 8081
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 1
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 450m
+              memory: 384Mi
+
+        - name: cloud-sql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.1.0
+          args:
+            - "--port=5432"
+            - "$(DB_INSTANCE_NAME)"
+          env:
+            - name: DB_INSTANCE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DB_INSTANCE_NAME
+          securityContext:
+            runAsNonRoot: true
+          resources:
+            requests:
+              cpu: 50m
+              memory: 100Mi
+            limits:
+              cpu: 50m
+              memory: 100Mi

@@ -1,0 +1,14 @@
+dependencies {
+	compileOnly 'org.projectlombok:lombok:1.18.28'
+	annotationProcessor 'org.projectlombok:lombok:1.18.28'
+	implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			artifactId = 'photomap-common-dto'
+			from components.java
+		}
+	}
+}

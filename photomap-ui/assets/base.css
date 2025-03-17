@@ -1,0 +1,7 @@
+body {
+    margin: 0;
+}
+
+.disable-dbl-tap-zoom {
+    touch-action: manipulation;
+}

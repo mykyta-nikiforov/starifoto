@@ -1,0 +1,11 @@
+.logo-text,
+.logo-text:visited {
+    font-size: 1.25rem;
+    line-height: 1.5rem;
+    font-family: 'e-Ukraine', sans-serif;
+    font-weight: 700;
+
+    @media (min-width: 1000px) {
+        font-size: 1.375rem;
+    }
+}

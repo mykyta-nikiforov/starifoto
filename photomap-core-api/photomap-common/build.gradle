@@ -1,0 +1,16 @@
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+
+    group = 'ua.in.photomap'
+    version = '1.0.0'
+
+    java {
+        sourceCompatibility = '17'
+    }
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+}

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: default
+data:
+  # API configuration
+  BASE_API_URL: "http://api-gateway-service:8081"
+  REQUEST_TIMEOUT: "60000"
+
+  # Environment configuration
+  NODE_ENV: "dev" 

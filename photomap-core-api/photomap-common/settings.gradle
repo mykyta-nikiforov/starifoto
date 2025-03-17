@@ -1,0 +1,5 @@
+rootProject.name = 'photomap-common'
+include ':rest-toolkit'
+include ':cache'
+include ':dto'
+include ':swagger'

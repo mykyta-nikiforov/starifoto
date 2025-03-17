@@ -1,0 +1,38 @@
+steps:
+  # Step 1: Build Docker Image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/photomap-ui:${SHORT_SHA}',
+           '-t', '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/photomap-ui:latest', '.']
+
+  # Step 2
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/photomap-ui:${SHORT_SHA}' ]
+
+  # Step 3
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/photomap-ui:latest' ]
+
+  # Step 4: Deploy to GKE
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+      - run
+      - --filename=./k8s/manifest.yaml
+      - --location=${_CLOUDSDK_COMPUTE_ZONE}
+      - --image=${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/photomap-ui:latest
+      - --cluster=${_CLOUDSDK_CONTAINER_CLUSTER}
+      - --output=output/photomap-ui
+      - --timeout=5m
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+# Required substitutions:
+# User-defined substitutions (must be configured in Cloud Build trigger):
+# ${_REGISTRY_URL}: Full container registry URL (e.g., europe-west1-docker.pkg.dev)
+# ${_REPOSITORY_NAME}: Artifact Registry repository name
+# ${_CLOUDSDK_COMPUTE_ZONE}: GCP zone
+# ${_CLOUDSDK_CONTAINER_CLUSTER}: GKE cluster name
+#
+# Built-in substitutions (automatically provided by Cloud Build):
+# ${PROJECT_ID}: GCP project ID
+# ${SHORT_SHA}: First 7 characters of commit SHA

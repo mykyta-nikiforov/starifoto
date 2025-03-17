@@ -1,0 +1,20 @@
+version: '3.1'
+
+services:
+  supercluster-api:
+    image: supercluster-api:latest
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      MONGO_CONNECTION: ${MONGO_CONNECTION}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      MONGO_AUTH_SOURCE: ${MONGO_AUTH_SOURCE}
+      MONGO_USERNAME: ${MONGO_USERNAME}
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
+    networks:
+      - photomap
+    restart: always
+
+networks:
+  photomap:

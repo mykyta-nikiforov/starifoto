@@ -1,0 +1,27 @@
+.input-field {
+    display: flex;
+    flex-direction: column;
+
+    .input-field-label {
+        margin-bottom: 10px;
+    }
+}
+
+.field-input-text,
+.input-field .field-input-text, /* for year picker to override the default input field */
+.input-field > input, .input-field > textarea {
+    background-color: #F3F4F6;
+    outline: none;
+    box-shadow: none;
+    border: none;
+
+    border-radius: 8px;
+    min-height: 50px;
+    padding: 0 1rem;
+    width: 100%;
+
+    font-family: 'e-Ukraine Light', sans-serif;
+    font-weight: 300;
+    color: black;
+    font-size: 1rem;
+}

@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: photo-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: photo-api
+  template:
+    metadata:
+      labels:
+        app: photo-api
+    spec:
+      serviceAccountName: k8s-service-account
+      containers:
+        - name: photo-api
+          image: ${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/photo-api:latest
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: SPRING_PROFILES
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DATABASE_URL
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-secret
+                  key: postgres-user
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-secret
+                  key: postgres-password
+            - name: KAFKA_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: KAFKA_HOSTNAME
+            - name: NOTIFICATION_API_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: NOTIFICATION_API_HOSTNAME
+            - name: USER_API_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: USER_API_HOSTNAME
+            - name: SUPERCLUSTER_API_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: SUPERCLUSTER_API_HOSTNAME
+            - name: GEOJSON_GENERATOR_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: GEOJSON_GENERATOR_HOSTNAME
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /app/google-credentials.json
+            - name: OPENAPI_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: CLIENT_ADDRESS
+          ports:
+            - containerPort: 8083
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8083
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 1
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8083
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 1
+          volumeMounts:
+            - name: google-credentials
+              mountPath: /app/google-credentials.json
+              subPath: credentials.json
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: 450m
+              memory: 768Mi
+        - name: cloud-sql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.1.0
+          args:
+            - "--port=5432"
+            - "$(DB_INSTANCE_NAME)"
+          env:
+            - name: DB_INSTANCE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DB_INSTANCE_NAME
+          securityContext:
+            runAsNonRoot: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+            limits:
+              cpu: 100m
+              memory: 200Mi
+      volumes:
+        - name: google-credentials
+          secret:
+            secretName: google-credentials

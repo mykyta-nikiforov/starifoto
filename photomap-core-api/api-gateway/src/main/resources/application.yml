@@ -1,0 +1,96 @@
+server:
+  port: 8081
+
+photomap:
+  security:
+    secret: ${JWT_SECRET:photomap-secret}
+  client:
+    url: ${PHOTOMAP_CLIENT_URL:http://localhost:5173}
+
+spring:
+  cloud:
+    gateway:
+      httpclient:
+        pool:
+          type: disabled
+      default-filters:
+        - name: Retry
+          args:
+            methods: GET,PUT,POST,DELETE,PATCH
+            exceptions:
+              - reactor.netty.http.client.PrematureCloseException
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: ${photomap.client.url}
+            allowedHeaders: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowCredentials: true
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/photomap}
+    username: ${DATABASE_USERNAME:admin}
+    password: ${DATABASE_PASSWORD:Password123}
+
+  data:
+    redis:
+      host: ${REDIS_HOSTNAME:localhost}
+      port: 6379
+
+user-api:
+  host: ${USER_API_HOSTNAME:localhost}
+photo-api:
+  host: ${PHOTO_API_HOSTNAME:localhost}
+geojson-generator:
+  host: ${GEOJSON_GENERATOR_HOSTNAME:localhost}
+notification-api:
+  host: ${NOTIFICATION_API_HOSTNAME:localhost}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,liveness,readiness,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  filter:
+    enabled:
+      true
+  level:
+    ua.in.photomap: DEBUG
+    org.springframework.cache: DEBUG
+    org.springframework.data.redis: DEBUG
+    org.springframework.cloud.gateway.filter: TRACE
+
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /doc/api-gateway/v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /doc/api-gateway/v3/api-docs/swagger-config
+    urls:
+      - url: /doc/photo-api/v3/api-docs
+        name: photo-api
+      - url: /doc/user-api/v3/api-docs
+        name: user-api
+      - url: /doc/notification-api/v3/api-docs
+        name: notification-api
+      - url: /doc/geojson-generator/v3/api-docs
+        name: geojson-generator
+swagger:
+  security:
+    username: ${SWAGGER_USERNAME}
+    password: ${SWAGGER_PASSWORD}

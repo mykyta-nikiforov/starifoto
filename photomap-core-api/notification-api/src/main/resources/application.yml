@@ -1,0 +1,44 @@
+server:
+  port: 8084
+
+photomap:
+  security:
+    secret: ${JWT_SECRET:photomap-secret}
+  redis:
+    host: ${REDIS_HOSTNAME:localhost}
+    port: ${REDIS_PORT:6379}
+  client:
+    url: ${PHOTOMAP_CLIENT_URL:http://localhost:5173}
+
+spring:
+  mail:
+    host: mail.adm.tools
+    port: 465
+    username: ${NO_REPLY_EMAIL}
+    password: ${NO_REPLY_EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+          auth: true
+          starttls:
+            enable: true
+
+logging:
+  ws-filter:
+    enabled:
+      true
+  level:
+    ua.in.photomap: DEBUG
+
+springdoc:
+  api-docs:
+    path: /doc/notification-api/v3/api-docs
+  swagger-ui:
+    path: /doc/notification-api/swagger-ui.html
+openapi:
+  service:
+    title: notification-api
+    version: 1.0.0
+    url: ${OPENAPI_SERVICE_URL:http://localhost:8084}

@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: default
+data:
+  # Spring configuration
+  SPRING_PROFILES: "dev"
+
+  # Database configuration
+  DATABASE_URL: "jdbc:postgresql://127.0.0.1:5432/postgres"
+  DB_INSTANCE_NAME: "${DB_INSTANCE_NAME}"
+  MONGODB_CONNECTION_STRING: "${MONGODB_CONNECTION_STRING}"
+  SUPERCLUSTER_MONGODB_CONNECTION_STRING: "mongodb+srv://${MONGODB_CONNECTION_STRING}"
+  MONGODB_AUTH_SOURCE: "photomap"
+
+  # Message broker configuration
+  KAFKA_HOSTNAME: "kafka-service"
+  REDIS_HOSTNAME: "redis"
+  REDIS_PORT: "6379"
+
+  # Service hostnames and ports
+  USER_API_HOSTNAME: "user-api-service"
+  PHOTO_API_HOSTNAME: "photo-api-service"
+  GEOJSON_GENERATOR_HOSTNAME: "geojson-generator-service"
+  NOTIFICATION_API_HOSTNAME: "notification-api-service"
+  SUPERCLUSTER_API_HOSTNAME: "photomap-supercluster-service"
+  
+  # Service ports
+  UI_PORT: "80"
+  API_GATEWAY_PORT: "8081"
+  NOTIFICATION_API_PORT: "8084"
+  SUPERCLUSTER_PORT: "3000"
+
+  # Domain configuration
+  DOMAIN_NAME: "${DOMAIN_NAME}"
+  EXTERNAL_IP_NAME: "${EXTERNAL_IP_NAME}"
+  SSL_CERTIFICATE_ID: "${SSL_CERTIFICATE_ID}"
+
+  # Client configuration
+  CLIENT_ADDRESS: "${CLIENT_ADDRESS}"
+  WS_URL: "${WS_URL}"

@@ -1,0 +1,123 @@
+steps:
+  # Step 1: Build with Gradle
+  - name: 'gradle:8.4.0-jdk17'
+    entrypoint: 'bash'
+    args: ['./cloud-build/gradle-build-dev.sh']
+
+  # Step 2: Build Docker Images
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args: [ './cloud-build/dockerize-dev.sh' ]
+    env:
+      - 'PROJECT_ID=${PROJECT_ID}'
+      - 'SHORT_SHA=${SHORT_SHA}'
+      - 'REGISTRY_URL=${REGISTRY_URL}'
+
+  # Step 3
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/api-gateway:${SHORT_SHA}' ]
+
+  # Step 4
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/api-gateway:latest' ]
+
+  # Step 5: Deploy Api Gateway image to GKE
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+      - run
+      - --filename=./k8s/microservices/api-gateway/deployment.yaml
+      - --location=${_CLOUDSDK_COMPUTE_ZONE}
+      - --image=${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/api-gateway:latest
+      - --cluster=${_CLOUDSDK_CONTAINER_CLUSTER}
+      - --output=output/api-gateway
+      - --timeout=5m
+
+  # Step 6
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/user-api:${SHORT_SHA}' ]
+
+  # Step 7
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/user-api:latest' ]
+
+  # Step 8: Deploy User Api image to GKE
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+      - run
+      - --filename=./k8s/microservices/user-api/deployment.yaml
+      - --location=${_CLOUDSDK_COMPUTE_ZONE}
+      - --image=${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/user-api:latest
+      - --cluster=${_CLOUDSDK_CONTAINER_CLUSTER}
+      - --output=output/user-api
+      - --timeout=5m
+
+  # Step 9
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/photo-api:${SHORT_SHA}' ]
+
+  # Step 10
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/photo-api:latest' ]
+
+  # Step 11: Deploy Photo Api image to GKE
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+      - run
+      - --filename=./k8s/microservices/photo-api/deployment.yaml
+      - --location=${_CLOUDSDK_COMPUTE_ZONE}
+      - --image=${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/photo-api:latest
+      - --cluster=${_CLOUDSDK_CONTAINER_CLUSTER}
+      - --output=output/photo-api
+      - --timeout=5m
+
+  # Step 12
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/notification-api:${SHORT_SHA}' ]
+
+  # Step 13
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/notification-api:latest' ]
+
+  # Step 14: Deploy Notification Api image to GKE
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+      - run
+      - --filename=./k8s/microservices/notification-api/deployment.yaml
+      - --location=${_CLOUDSDK_COMPUTE_ZONE}
+      - --image=${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/notification-api:latest
+      - --cluster=${_CLOUDSDK_CONTAINER_CLUSTER}
+      - --output=output/notification-api
+      - --timeout=5m
+
+  # Step 15
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/geojson-generator:${SHORT_SHA}' ]
+
+  # Step 16
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/geojson-generator:latest' ]
+
+  # Step 17: Deploy Geojson Generator image to GKE
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+      - run
+      - --filename=./k8s/microservices/geojson-generator/deployment.yaml
+      - --location=${_CLOUDSDK_COMPUTE_ZONE}
+      - --image=${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/geojson-generator:latest
+      - --cluster=${_CLOUDSDK_CONTAINER_CLUSTER}
+      - --output=output/geojson-generator
+      - --timeout=5m
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+# Required substitutions:
+# User-defined substitutions (must be configured in Cloud Build trigger):
+# ${_REGISTRY_URL}: Full container registry URL (e.g., europe-west1-docker.pkg.dev)
+# ${_REPOSITORY_NAME}: Artifact Registry repository name
+# ${_CLOUDSDK_COMPUTE_ZONE}: GCP zone
+# ${_CLOUDSDK_CONTAINER_CLUSTER}: GKE cluster name
+#
+# Built-in substitutions (automatically provided by Cloud Build):
+# ${PROJECT_ID}: GCP project ID
+# ${SHORT_SHA}: First 7 characters of commit SHA

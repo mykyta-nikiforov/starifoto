@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: workload-identity-test
+spec:
+  serviceAccountName: k8s-service-account
+  containers:
+    - name: workload-identity-test
+      image: google/cloud-sdk:slim
+      command: ["sh", "-c", "gcloud auth list && gcloud projects list"]
