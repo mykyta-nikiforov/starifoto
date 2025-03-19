@@ -11,7 +11,8 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.server.standard.TomcatRequestUpgradeStrategy;
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
-import ua.in.photomap.common.rest.toolkit.util.JwtService;
+import ua.in.photomap.notificationapi.interceptor.websocket.AuthChannelInterceptor;
+import ua.in.photomap.notificationapi.interceptor.websocket.CsrfHandshakeInterceptor;
 
 @EnableWebSocketMessageBroker
 @Configuration
@@ -22,11 +23,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Value("${photomap.client.url}")
     private String clientUrl;
 
-    private final JwtService jwtService;
+    private final AuthChannelInterceptor authChannelInterceptor;
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new AuthChannelInterceptor(jwtService));
+        registration.interceptors(authChannelInterceptor);
     }
 
     @Override
@@ -41,6 +42,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint(WEB_SOCKET_ENDPOINT)
                 .setAllowedOriginPatterns(clientUrl)
-                .setHandshakeHandler(new DefaultHandshakeHandler(new TomcatRequestUpgradeStrategy()));
+                .setHandshakeHandler(new DefaultHandshakeHandler(new TomcatRequestUpgradeStrategy()))
+                .addInterceptors(new CsrfHandshakeInterceptor());
     }
 }

@@ -1,6 +1,7 @@
 package ua.in.photomap.apigateway.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.server.Cookie;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -35,10 +36,20 @@ public class SecurityConfig {
                         .pathMatchers("/doc/**", "/csrf").permitAll()
                         .anyExchange().permitAll())
                 .csrf((csrf) -> csrf
-                        .csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse())
-                        .csrfTokenRequestHandler(new SpaServerCsrfTokenRequestHandler())
+                        .csrfTokenRepository(getCookiesCsrfTokenRepository())
+                        .csrfTokenRequestHandler(new ServerCsrfTokenRequestAttributeHandler())
                 )
                 .build();
+    }
+
+    public static CookieServerCsrfTokenRepository getCookiesCsrfTokenRepository() {
+        final CookieServerCsrfTokenRepository repository = new CookieServerCsrfTokenRepository();
+        repository.setCookieCustomizer((x) -> {
+            x.sameSite(Cookie.SameSite.LAX.attributeValue());
+            x.secure(true);
+            x.httpOnly(false);
+        });
+        return repository;
     }
 
     @Bean
@@ -54,12 +65,5 @@ public class SecurityConfig {
                 .roles("ADMIN")
                 .build();
         return new MapReactiveUserDetailsService(admin);
-    }
-
-    @Bean
-    public WebFilter addCsrfTokenFilter() {
-        return (exchange, next) -> Mono.just(exchange)
-                .flatMap(ex -> ex.<Mono<CsrfToken>>getAttribute(CsrfToken.class.getName()))
-                .then(next.filter(exchange));
     }
 }

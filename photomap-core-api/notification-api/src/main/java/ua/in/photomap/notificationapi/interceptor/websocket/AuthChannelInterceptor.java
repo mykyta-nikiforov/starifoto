@@ -1,4 +1,4 @@
-package ua.in.photomap.notificationapi.config;
+package ua.in.photomap.notificationapi.interceptor.websocket;
 
 import com.auth0.jwt.interfaces.Claim;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +10,14 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import ua.in.photomap.common.rest.toolkit.exception.ForbiddenException;
 import ua.in.photomap.common.rest.toolkit.util.JwtService;
 import ua.in.photomap.common.rest.toolkit.util.SecurityUtils;
 
 import java.util.Map;
 
+@Component
 @RequiredArgsConstructor
 public class AuthChannelInterceptor implements ChannelInterceptor {
     private final JwtService jwtService;

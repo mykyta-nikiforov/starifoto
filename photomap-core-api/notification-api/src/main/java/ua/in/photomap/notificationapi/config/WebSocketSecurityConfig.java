@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.socket.EnableWebSocket
 import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import lombok.extern.slf4j.Slf4j;
+import ua.in.photomap.notificationapi.interceptor.websocket.TopicSubscriptionInterceptor;
 
 @Configuration
 @EnableWebSocketSecurity
