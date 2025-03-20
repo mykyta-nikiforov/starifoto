@@ -1,5 +1,6 @@
 package ua.in.photomap.apigateway.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.Cookie;
 import org.springframework.context.annotation.Bean;
@@ -12,14 +13,17 @@ import org.springframework.security.core.userdetails.MapReactiveUserDetailsServi
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.csrf.*;
 import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private static final String[] SWAGGER_PATHS = {"/swagger-ui.html", "/webjars/swagger-ui/**"};
+    private static final String[] PUBLIC_PATHS = {"/doc/**", "/csrf"};
+
     @Value("${swagger.security.username}")
     private String swaggerUsername;
 
@@ -32,8 +36,8 @@ public class SecurityConfig {
                 .authenticationManager(reactiveAuthenticationManager())
                 .httpBasic(Customizer.withDefaults())
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/swagger-ui.html", "/webjars/swagger-ui/**").authenticated()
-                        .pathMatchers("/doc/**", "/csrf").permitAll()
+                        .pathMatchers(SWAGGER_PATHS).authenticated()
+                        .pathMatchers(PUBLIC_PATHS).permitAll()
                         .anyExchange().permitAll())
                 .csrf((csrf) -> csrf
                         .csrfTokenRepository(getCookiesCsrfTokenRepository())
@@ -59,9 +63,8 @@ public class SecurityConfig {
 
     @Bean
     public MapReactiveUserDetailsService userDetailsService() {
-        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         UserDetails admin = User.withUsername(swaggerUsername)
-                .password(encoder.encode(swaggerPassword))
+                .password(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(swaggerPassword))
                 .roles("ADMIN")
                 .build();
         return new MapReactiveUserDetailsService(admin);
