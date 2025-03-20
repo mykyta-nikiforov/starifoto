@@ -9,11 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.Set;
-
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.*;
+import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 
 @Component
 @Slf4j
@@ -22,8 +18,8 @@ public class LoggingFilter implements GlobalFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        Route route = exchange.getAttribute(GATEWAY_ROUTE_ATTR);
-        log.debug("Incoming request is routed to id: " + route.getId());
-        return chain.filter(exchange);
+        return Mono.justOrEmpty(exchange.<Route>getAttribute(ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR))
+                .doOnNext(route -> log.debug("Incoming request is routed to id: {}", route.getId()))
+                .then(chain.filter(exchange));
     }
 }
