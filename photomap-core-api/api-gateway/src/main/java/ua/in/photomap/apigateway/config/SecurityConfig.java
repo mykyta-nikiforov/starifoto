@@ -66,4 +66,11 @@ public class SecurityConfig {
                 .build();
         return new MapReactiveUserDetailsService(admin);
     }
+
+    @Bean
+    public WebFilter addCsrfTokenFilter() {
+        return (exchange, next) -> Mono.just(exchange)
+                .flatMap(ex -> ex.<Mono<CsrfToken>>getAttribute(CsrfToken.class.getName()))
+                .then(next.filter(exchange));
+    }
 }
