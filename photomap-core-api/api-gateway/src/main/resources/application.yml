@@ -45,12 +45,16 @@ spring:
 
 user-api:
   host: ${USER_API_HOSTNAME:localhost}
+  port: ${USER_API_PORT:8082}
 photo-api:
   host: ${PHOTO_API_HOSTNAME:localhost}
+  port: ${PHOTO_API_PORT:8083}
 geojson-generator:
   host: ${GEOJSON_GENERATOR_HOSTNAME:localhost}
+  port: ${GEOJSON_GENERATOR_PORT:8088}
 notification-api:
   host: ${NOTIFICATION_API_HOSTNAME:localhost}
+  port: ${NOTIFICATION_API_PORT:8084}
 
 management:
   endpoints:
