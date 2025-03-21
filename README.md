@@ -103,9 +103,9 @@ graph TB
   - [MapLibre](https://maplibre.org/) for map integration
 - **Database:**
   - PostgreSQL for user & photo related data
-  - MongoDB for GeoJSON and clustering data
+  - MongoDB for GeoJSON data displayed on the map
 - **File Storage:**
-  - Google Cloud Storage for photo files
+  - Google Cloud Storage for image files
 - **Authentication:**
   - [JWT](docs/jwt.md)
   - Google OAuth 2.0
@@ -138,7 +138,7 @@ graph TB
   - Comments
   - Licenses
   - User roles and permissions
-- **MongoDB**: Database for GeoJSON and clustering data
+- **MongoDB**: Database for GeoJSON data displayed on the map
 - **Redis**:
   - Caching for Java microservices
   - Redisson Pub/Sub for WebSocket notifications across all backend pods
@@ -148,14 +148,13 @@ graph TB
 - **Zookeeper**: Coordination service for Kafka
 
 #### Storage
-- **Google Cloud Storage**: Cloud storage for photo files
+- **Google Cloud Storage**: Cloud storage for image files
 
 ### Communication Flow
 - HTTP requests are routed through the API Gateway
-- WebSocket connections are handled directly by the notification-api service
-- Photo uploads are stored in Google Cloud Storage
+- Image files are stored in Google Cloud Storage
 - Photo updates trigger Kafka events to regenerate GeoJSON data in MongoDB
-- Real-time notifications are delivered via WebSocket connections
+- Real-time notifications are delivered via WebSocket connections between the client and notification-api service
 - Java microservices use Redis for caching
 - Redisson Pub/Sub topics ensure all backend pods receive and broadcast WebSocket notifications
 
