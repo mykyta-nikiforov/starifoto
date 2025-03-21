@@ -171,8 +171,28 @@ For more detailed information about the application, please refer to the followi
 - [Redis](docs/redis.md): Information on Redis caching and Pub/Sub usage.
 - [Kafka](docs/kafka.md): Explanation of Kafka's role in the application.
 
----
+## Directory Structure
 
+```
+starifoto/
+|
+├── docs/                             # Project documentation and guides
+├── k8s/                              # Kubernetes deployment configurations
+├── photomap-core-api/                # Java Backend core services
+│   ├── api-gateway/                  # API Gateway service for routing and authentication
+│   ├── docker/                       # Docker configurations for core services
+│   ├── geojson-generator/            # Service for generating GeoJSON data from photos
+│   ├── notification-api/             # Service handling user WebSocket and email notifications
+│   ├── photo-api/                    # Core service for photo management and processing
+│   ├── photomap-common/              # Shared utilities and common code
+│   └── user-api/                     # User management and authentication service
+├── photomap-supercluster-api/        # Node.js map clustering service for efficient photo display
+│   ├── docker/                       # Docker configurations
+├── photomap-ui/                      # Frontend Vue 3 application for photo map interface
+│   ├── docker/                       # Docker configurations
+```
+
+---
 <div align="center">
 Made with ❤️ for Ukraine 🇺🇦
 </div>
