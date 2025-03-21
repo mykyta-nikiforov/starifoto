@@ -16,16 +16,16 @@ Spring Cloud Gateway implementation in Kotlin with reactive approach.
 ## 🌟 Key Features
 
 1. **Gateway Routes**
-   - User service (`/api/auth/**`, `/api/user/**`)
-   - Photo service (`/api/photo/**`)
-   - GeoJSON service (`/api/geojson/**`)
-   - Notification service (`/api/notification/**`)
+   - user-api (`/api/auth/**`, `/api/user/**`)
+   - photo-api (`/api/photo/**`)
+   - geojson-generator (`/api/geojson/**`)
+   - notification-api (`/api/notification/**`)
 
 2. **Security**
    - JWT authentication filter
    - CSRF token validation
    - Cookie security configuration
-   - CORS with allowed methods: GET, POST, PUT, DELETE, OPTIONS, PATCH
+   - CORS with allowed origin (client URL)
 
 3. **Logging**
    - MDC context for request tracking
