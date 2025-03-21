@@ -55,7 +55,7 @@ PHOTOMAP_CLIENT_URL=http://localhost:5173
 
 3. **Build Docker Image**
 ```bash
-docker build -t photomap-api-gateway .
+docker build -t api-gateway .
 ```
 
 ## 📚 API Documentation
