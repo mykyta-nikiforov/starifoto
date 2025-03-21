@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono
 
 @RestController
 class CsrfController {
-    @GetMapping("/csrf")
-    fun csrf(token: Mono<CsrfToken>): Mono<Map<String, String>> =
-        token.map { csrf -> mapOf("token" to csrf.token) }
+    @GetMapping("/api/csrf")
+    fun csrf(): Mono<Map<String, String>> =
+        Mono.just(mapOf("result" to "csrf"))
 } 
