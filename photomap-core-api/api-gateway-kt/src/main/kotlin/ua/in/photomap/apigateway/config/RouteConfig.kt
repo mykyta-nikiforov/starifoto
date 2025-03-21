@@ -1,6 +1,5 @@
 package ua.`in`.photomap.apigateway.config
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.cloud.gateway.route.RouteLocator
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder
 import org.springframework.context.annotation.Bean
@@ -9,28 +8,9 @@ import ua.`in`.photomap.apigateway.filter.AuthenticationFilter
 
 @Configuration
 class RouteConfig(
-    private val authFilter: AuthenticationFilter
+    private val authFilter: AuthenticationFilter,
+    private val apiProperties: ApiProperties
 ) {
-    @Value("\${user-api.host}")
-    private lateinit var userApiHost: String
-    @Value("\${user-api.port}")
-    private var userApiPort: Int = 0
-
-    @Value("\${photo-api.host}")
-    private lateinit var photoApiHost: String
-    @Value("\${photo-api.port}")
-    private var photoApiPort: Int = 0
-
-    @Value("\${geojson-generator.host}")
-    private lateinit var geojsonGeneratorHost: String
-    @Value("\${geojson-generator.port}")
-    private var geojsonGeneratorPort: Int = 0
-
-    @Value("\${notification-api.host}")
-    private lateinit var notificationApiHost: String
-    @Value("\${notification-api.port}")
-    private var notificationApiPort: Int = 0
-
     companion object {
         private const val URI_TEMPLATE = "http://%s:%d"
 
@@ -59,25 +39,25 @@ class RouteConfig(
         .route("user-api") { r ->
             r.path(*USER_API_PATHS)
                 .filters { f -> f.filter(authFilter) }
-                .uri(getUri(userApiHost, userApiPort))
+                .uri(getUri(apiProperties.user))
         }
         .route("photo-api") { r ->
             r.path(*PHOTO_API_PATHS)
                 .filters { f -> f.filter(authFilter) }
-                .uri(getUri(photoApiHost, photoApiPort))
+                .uri(getUri(apiProperties.photo))
         }
         .route("geojson-generator") { r ->
             r.path(*GEOJSON_GENERATOR_PATHS)
                 .filters { f -> f.filter(authFilter) }
-                .uri(getUri(geojsonGeneratorHost, geojsonGeneratorPort))
+                .uri(getUri(apiProperties.geojson))
         }
         .route("notification-api") { r ->
             r.path(*NOTIFICATION_API_PATHS)
                 .filters { f -> f.filter(authFilter) }
-                .uri(getUri(notificationApiHost, notificationApiPort))
+                .uri(getUri(apiProperties.notification))
         }
         .build()
 
-    private fun getUri(host: String, port: Int): String = 
-        URI_TEMPLATE.format(host, port)
+    private fun getUri(service: ServiceProperties): String = 
+        URI_TEMPLATE.format(service.host, service.port)
 } 
