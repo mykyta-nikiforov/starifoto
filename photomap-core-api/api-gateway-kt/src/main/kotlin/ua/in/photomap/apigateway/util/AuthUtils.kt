@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.stereotype.Component
-import ua.`in`.photomap.apigateway.util.CookieUtils.Companion.getCookieValue
 
 @Component
 class AuthUtils {
@@ -22,7 +21,7 @@ class AuthUtils {
     private lateinit var jwtSecret: String
 
     fun getAuthToken(request: ServerHttpRequest): String? =
-        getAuthHeaderToken(request) ?: getCookieValue(request, ACCESS_TOKEN_COOKIE)
+        getAuthHeaderToken(request) ?: CookieUtils.getCookieValue(request, ACCESS_TOKEN_COOKIE)
 
     fun getDecodedJWT(token: String): DecodedJWT = try {
         JWT.require(Algorithm.HMAC512(jwtSecret))

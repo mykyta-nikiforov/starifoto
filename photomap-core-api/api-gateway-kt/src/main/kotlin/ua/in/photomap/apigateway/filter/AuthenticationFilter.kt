@@ -2,7 +2,6 @@ package ua.`in`.photomap.apigateway.filter
 
 import com.auth0.jwt.interfaces.DecodedJWT
 import org.slf4j.LoggerFactory
-import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
 import org.springframework.cloud.gateway.filter.GatewayFilter
 import org.springframework.cloud.gateway.filter.GatewayFilterChain
