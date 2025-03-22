@@ -151,12 +151,14 @@ graph TB
 - **Google Cloud Storage**: Cloud storage for image files
 
 ### Communication Flow
-- HTTP requests are routed through the API Gateway
-- Image files are stored in Google Cloud Storage
-- Photo updates trigger Kafka events to regenerate GeoJSON data in MongoDB
-- Real-time notifications are delivered via WebSocket connections between the client and notification-api service
-- Java microservices use Redis for caching
-- Redisson Pub/Sub topics ensure all backend pods receive and broadcast WebSocket notifications
+
+The application uses a combination of HTTP, WebSocket, and event-driven communication patterns. Key aspects include:
+- API Gateway for request routing and authentication
+- Kafka for asynchronous event processing
+- WebSockets for client-server communication
+- Redis Pub/Sub for broadcasting notifications across all service instances (ensures notifications reach all clients even with multiple pods)
+
+For detailed communication flows, see [Backend Architecture](docs/backend.md#-communication-flow).
 
 ## 📚 Documentation
 
