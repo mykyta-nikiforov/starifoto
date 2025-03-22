@@ -100,10 +100,10 @@ graph TB
 - **Frontend:**
   - Vue 3 + Nuxt 3 with SSR (Server-Side Rendering)
   - Pinia for state management
-  - [MapLibre](https://maplibre.org/) for map integration
+  - [MapLibre](docs/map-integration.md#-frontend) for map integration
 - **Database:**
   - PostgreSQL for user & photo related data
-  - MongoDB for GeoJSON data displayed on the map
+  - MongoDB for [GeoJSON data](docs/map-integration.md#-data-structure) displayed on the map
 - **File Storage:**
   - Google Cloud Storage for image files
 - **Authentication:**
@@ -127,8 +127,8 @@ graph TB
 - **photo-api**: Service for photo management
 - **user-api**: User management service
 - **notification-api**: WebSocket-based and email notification service
-- **geojson-generator**: Service for generating GeoJSON data
-- **supercluster-api**: Node.js service for map clustering using supercluster library
+- **geojson-generator**: Service for generating [GeoJSON data](docs/map-integration.md#-data-structure)
+- **supercluster-api**: [Node.js service](docs/map-integration.md#-backend) for map clustering using supercluster library
 
 #### Databases
 - **PostgreSQL**: Primary database for user and photo metadata, including:
@@ -138,7 +138,7 @@ graph TB
   - Comments
   - Licenses
   - User roles and permissions
-- **MongoDB**: Database for GeoJSON data displayed on the map
+- **MongoDB**: Database for [GeoJSON data](docs/map-integration.md#-data-structure) displayed on the map
 - **Redis**:
   - Caching for Java microservices
   - Redisson Pub/Sub for WebSocket notifications across all backend pods
