@@ -2,23 +2,58 @@
 
 This guide covers the setup and deployment of the PhotoMap Core API services.
 
-## 🐳 Current Deployment (Docker on DigitalOcean)
+## 📋 Prerequisites
 
-For detailed Docker setup instructions, please refer to the [Docker README](./docker/README.md).
+### Java Development Kit (JDK) 17
+This project requires Java 17. Here's how to set it up:
 
-### Prerequisites
+#### macOS
+1. Install OpenJDK 17:
+```bash
+brew install openjdk@17
+```
+
+2. Set JAVA_HOME (add to your ~/.zshrc or ~/.bash_profile):
+```bash
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+```
+
+#### Linux (Ubuntu/Debian)
+1. Install OpenJDK 17:
+```bash
+sudo apt update
+sudo apt install openjdk-17-jdk
+```
+
+2. Set JAVA_HOME (add to your ~/.bashrc):
+```bash
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+```
+
+#### Verify Installation
+After setting JAVA_HOME, verify it:
+```bash
+java -version  # Should show Java 17
+echo $JAVA_HOME  # Should point to Java 17 installation
+```
+
+### Other Requirements
 - Docker and Docker Compose installed
 - Access to DigitalOcean droplet
 - MongoDB instance
 
-### Docker Setup
+## 🐳 Docker Deployment
+
+For detailed Docker setup instructions, please refer to the [Docker README](./docker/README.md).
+
+### Quick Start
 ```bash
 # Start all services
 cd docker
-docker-compose -p photomap up -d
+docker compose -p starifoto up -d
 
 # Start a specific service
-docker-compose -p photomap up -d notification-api
+docker compose -p starifoto up -d notification-api
 ```
 
 ### MongoDB Setup

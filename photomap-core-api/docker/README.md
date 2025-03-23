@@ -10,9 +10,21 @@ This guide provides instructions for setting up and running the PhotoMap Core AP
 
 ## 🚀 Getting Started
 
-### Environment Configuration
+### Security Setup
 
-1. **Google Cloud Setup**:
+1. **MongoDB Keyfile**:
+   Generate a new MongoDB keyfile for authentication (DO NOT commit this file to git):
+   ```bash
+   # Generate a secure keyfile
+   openssl rand -base64 756 > mongo/mongodb-keyfile
+   
+   # Set proper permissions
+   chmod 400 mongo/mongodb-keyfile
+   ```
+
+   > ⚠️ IMPORTANT: Never commit mongodb-keyfile to version control!
+
+2. **Google Cloud Setup**:
    Create a `google` directory in the parent folder and place your Google Cloud service account credentials file there:
    ```
    photomap-core-api/
@@ -62,35 +74,26 @@ GOOGLE_OAUTH_CLIENT_ID=your-client-id   # Google OAuth 2.0 client ID
 
 1. **Start All Services**:
    ```bash
-   docker-compose -p photomap up -d
+   docker compose -p starifoto up -d
    ```
    This command will start all services defined in the `docker-compose.yaml` file.
 
 2. **Start a Specific Service**:
    ```bash
-   docker-compose -p photomap up -d <service-name>
+   docker compose -p starifoto up -d <service-name>
    ```
    Replace `<service-name>` with the name of the service you want to start (e.g., `notification-api`).
 
 3. **Stop All Services**:
    ```bash
-   docker-compose -p photomap down
+   docker compose -p starifoto down
    ```
    This command will stop all running services and remove the containers.
-
-### 🛠️ Useful Scripts
-
-- **Local Dockerization**:
-  Run the `dockerize-local.sh` script to build Docker images for all services locally.
-  ```bash
-  ./dockerize-local.sh
-  ```
 
 ## 🗂️ Directory Structure
 
 - `docker-compose.yaml`: Main Docker Compose configuration file
 - `.env`: Environment variable file
-- `dockerize-local.sh`: Script for local Docker setup
 - `postgres-db-init-script/`: Initialization scripts for PostgreSQL
 - `mongo/`: MongoDB configuration and setup files
 
@@ -99,7 +102,7 @@ GOOGLE_OAUTH_CLIENT_ID=your-client-id   # Google OAuth 2.0 client ID
 - **Check Logs**:
   Use the following command to view logs for a specific service:
   ```bash
-  docker-compose logs <service-name>
+  docker compose logs <service-name>
   ```
 
 ---

@@ -178,21 +178,46 @@ For more detailed information about the application, please refer to the followi
 ```
 starifoto/
 |
-├── docs/                             # Project documentation and guides
-├── k8s/                              # Kubernetes deployment configurations
-├── photomap-core-api/                # Java Backend core services
-│   ├── api-gateway/                  # API Gateway service for routing and authentication
-│   ├── docker/                       # Docker configurations for core services
-│   ├── geojson-generator/            # Service for generating GeoJSON data from photos
-│   ├── notification-api/             # Service handling user WebSocket and email notifications
-│   ├── photo-api/                    # Core service for photo management and processing
-│   ├── photomap-common/              # Shared utilities and common code
-│   └── user-api/                     # User management and authentication service
-├── photomap-supercluster-api/        # Node.js map clustering service for efficient photo display
-│   ├── docker/                       # Docker configurations
-├── photomap-ui/                      # Frontend Vue 3 application for photo map interface
-│   ├── docker/                       # Docker configurations
+├── docs/                              # Project documentation and guides
+├── k8s/                               # Kubernetes deployment configurations
+├── photomap-core-api/                 # Java Backend core services
+│   ├── api-gateway/                   # API Gateway service for routing and authentication
+│   ├── docker/                        # Docker configurations for core services
+│   ├── geojson-generator/             # Service for generating GeoJSON data from photos
+│   ├── notification-api/              # Service handling user WebSocket and email notifications
+│   ├── photo-api/                     # Core service for photo management and processing
+│   ├── photomap-common/               # Shared utilities and common code
+│   └── user-api/                      # User management and authentication service
+├── photomap-supercluster-api/         # Node.js map clustering service for efficient photo display
+│   ├── docker/                        # Docker configurations
+├── photomap-ui/                       # Frontend Vue 3 application for photo map interface
+│   ├── docker/                        # Docker configurations
+├── dockerize-and-start.sh             # Script to build Docker images and start all services locally
 ```
+
+## 🚀 Local Development
+
+To run the project locally:
+
+1. Make sure you have the following prerequisites installed:
+   - Docker
+   - Java 17 (for core API development)
+
+2. Clone the repository:
+```bash
+git clone https://github.com/mykyta-nikiforov/starifoto.git
+cd starifoto
+```
+
+3. Run the development script:
+```bash
+chmod +x dockerize-and-start.sh
+./dockerize-and-start.sh
+```
+
+This will set up environment files, build all services, and start Docker containers.
+
+For detailed development instructions, refer to each service's documentation in their respective directories.
 
 ---
 <div align="center">

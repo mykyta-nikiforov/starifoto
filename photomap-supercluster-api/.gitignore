@@ -31,5 +31,4 @@ coverage
 
 .env
 /docker/.env
-/docker/.env.dev
-/docker/.env.prod
+/docker/.env.*

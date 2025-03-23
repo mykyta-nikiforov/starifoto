@@ -30,7 +30,7 @@ public class AuthenticationFilter implements GatewayFilter {
             "/api/auth/google",
             "/api/auth/login"
     );
-    
+
     private final UserService userService;
     private final AuthUtils authUtils;
     private final CacheManager cacheManager;
@@ -40,19 +40,22 @@ public class AuthenticationFilter implements GatewayFilter {
         ServerHttpRequest request = exchange.getRequest();
         log.debug("Auth filter start for path: {}", request.getPath());
 
-        if (!requiresAuthentication(request)) {
+        if (isIgnoredPath(request)) {
             return chain.filter(exchange);
         }
 
-        return authUtils.getAuthToken(request)
-                .map(token -> validateToken(exchange, chain, token))
-                .orElseGet(() -> onError(exchange, HttpStatus.FORBIDDEN));
+        Optional<String> authToken = authUtils.getAuthToken(request);
+        if (authToken.isEmpty()) {
+            return chain.filter(exchange);
+        }
+
+        return validateToken(exchange, chain, authToken.get());
     }
 
-    private boolean requiresAuthentication(ServerHttpRequest request) {
+    private boolean isIgnoredPath(ServerHttpRequest request) {
         String path = request.getURI().getPath();
         return IGNORED_PATHS.stream()
-                .noneMatch(path::contains);
+                .anyMatch(path::contains);
     }
 
     private Mono<Void> validateToken(ServerWebExchange exchange, GatewayFilterChain chain, String token) {
@@ -88,7 +91,7 @@ public class AuthenticationFilter implements GatewayFilter {
         Set<String> userPrivileges = getUserPrivileges(userId);
         boolean privilegesMatch = Objects.equals(tokenPrivileges, userPrivileges);
         log.debug("User {} privileges match: {}", userId, privilegesMatch);
-        
+
         return privilegesMatch;
     }
 
@@ -133,7 +136,7 @@ public class AuthenticationFilter implements GatewayFilter {
             cache.put(userId, result);
             log.debug("{} value cached for user {}", cacheName, userId);
         }
-        
+
         return result;
     }
 
