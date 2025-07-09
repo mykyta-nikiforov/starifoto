@@ -2,7 +2,7 @@ server:
   port: 8088
 spring:
   kafka:
-    bootstrap-servers: ${KAFKA_HOSTNAME:localhost}:9092
+    bootstrap-servers: ${KAFKA_HOSTNAME:localhost}:29092
   data:
     mongodb:
       authentication-database: photomap

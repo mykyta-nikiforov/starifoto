@@ -1,0 +1,42 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+class Config:
+    # Database
+    DATABASE_URL = os.getenv('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET')
+    JWT_ACCESS_TOKEN_EXPIRES = False
+    
+    # File upload
+    MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10MB
+    MAX_FILE_SIZE_MB = int(os.getenv('MAX_FILE_SIZE_MB', '5'))
+    UPLOAD_FOLDER = 'uploads'
+    
+    # GCP
+    GOOGLE_CLOUD_STORAGE_BUCKET = os.getenv('GOOGLE_CLOUD_STORAGE_BUCKET')
+    GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+    GOOGLE_CLOUD_PROJECT = os.getenv('GOOGLE_CLOUD_PROJECT')
+
+    NOTIFICATION_API_BASE_URL = os.getenv('NOTIFICATION_API_BASE_URL')
+    USER_API_BASE_URL = os.getenv('USER_API_BASE_URL')
+    SUPERCLUSTER_API_BASE_URL = os.getenv('SUPERCLUSTER_API_BASE_URL')
+    GEOJSON_GENERATOR_BASE_URL = os.getenv('GEOJSON_GENERATOR_BASE_URL')
+    INTERNAL_API_HTTP_TIMEOUT = int(os.getenv('INTERNAL_API_HTTP_TIMEOUT', '30'))
+
+    KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS')
+    REDIS_URL = os.getenv('REDIS_URL')
+
+    CELERY_BROKER_URL = REDIS_URL
+    CELERY_RESULT_BACKEND = REDIS_URL
+
+    THREAD_POOL_MAX_WORKERS = int(os.getenv('THREAD_POOL_MAX_WORKERS', '4'))
+
+    LOG_LEVEL = os.getenv('LOG_LEVEL', 'DEBUG')
+    FLASK_ENV = os.getenv('FLASK_ENV', 'development')
+    PORT = int(os.getenv('PORT', 8083))
+    HOST = os.getenv('HOST', 'localhost')
