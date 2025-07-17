@@ -146,9 +146,8 @@ class PhotoManager:
         self.photo_metadata_mapper.set_photo_details(existing_photo, metadata)
         saved_photo = self.photo_service.save(existing_photo)
         if geo_changed:
-            flask_app = current_app._get_current_object()
-            kafka_coro = self.kafka_service.send_kafka_message_async('photo_update', saved_photo, flask_app)
-            AsyncUtils.run_async_task(kafka_coro)
+            photo_dto = self.photo_mapper.photo_to_geojson_data_dto(saved_photo)
+            self.kafka_service.push_update_photo_event(photo_dto)
         
         if metadata.changedImageTypes is not None and len(metadata.changedImageTypes) > 0 and files is not None:
             temp_files = self._convert_multipart_files_to_temp_files(files)

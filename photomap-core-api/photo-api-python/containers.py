@@ -129,7 +129,6 @@ class Container(containers.DeclarativeContainer):
 
     kafka_service = providers.Singleton(
         KafkaService,
-        photo_mapper=photo_mapper,
         kafka_producer=kafka_producer,
         thread_pool=thread_pool
     )
